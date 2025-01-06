@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../prisma";
 import bcrypt from "bcrypt";
-import { stat } from "fs";
-
+import errorHandler from "@/handlers/errorHandler";
+import asyncHandler from "@/handlers/asyncHandler";
 interface SignInBody {
   email: string;
   password: string;
@@ -18,25 +18,13 @@ export async function POST(req: NextRequest) {
     });
     let checkPass = await bcrypt.compare(`${password}`, `${user?.password}`);
     if (user && checkPass) {
-      return NextResponse.json({
-        status: 200,
-        data: user?.id,
-      });
+      return NextResponse.json(asyncHandler(200, user.id));
     } else if (user && !checkPass) {
-      return NextResponse.json({
-        status: 403,
-        data: "Invalid password",
-      });
+      return NextResponse.json(errorHandler(401, "Invalid Password"));
     } else {
-      return NextResponse.json({
-        status: 400,
-        data: "User not found",
-      });
+      return NextResponse.json(errorHandler(404, "User not found"));
     }
   } catch (error: any) {
-    return NextResponse.json({
-      status: 500,
-      data: error.message,
-    });
+    return NextResponse.json(errorHandler(500, error.message));
   }
 }

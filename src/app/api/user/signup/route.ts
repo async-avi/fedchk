@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../prisma";
 import bcrypt from "bcrypt";
+import asyncHandler from "@/handlers/asyncHandler";
+import errorHandler from "@/handlers/errorHandler";
 
 interface SignUpBody {
   fullName: string;
@@ -20,15 +22,9 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
-    return NextResponse.json({
-      status: 200,
-      data: user.id,
-    });
+    return NextResponse.json(asyncHandler(200, user.id));
   } catch (error: any) {
     console.log(error.message);
-    return NextResponse.json({
-      status: 500,
-      data: error.message,
-    });
+    return NextResponse.json(errorHandler(500, error));
   }
 }
