@@ -15,12 +15,15 @@ datasource db {
 
 model Review{
   id String @id @db.ObjectId @default(auto()) @map("_id")
+  username String
+  content String
   assetUrl String @default("")
   stars Int @default(0)
   likes Int @default(0)
   chunk Chunk @relation(fields: [chunkId], references: [id])
   chunkId String @db.ObjectId
   replies Reply[]
+  iat DateTime @default(now())
 }
 
 
@@ -30,6 +33,7 @@ model Reply{
   assetUrl String @default("")
   review Review @relation(fields: [reviewId], references: [id])
   reviewId String @db.ObjectId
+  iat DateTime @default(now())
 }
 
 model User{
@@ -39,6 +43,8 @@ model User{
   password String
   isVerified Boolean @default(false)
   chunks Chunk[]
+  iat DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Chunk{
@@ -51,4 +57,5 @@ model Chunk{
   user User @relation(fields: [userId], references: [id])
   userId String @db.ObjectId
   reviews Review[]
+  iat DateTime @default(now())
 }
