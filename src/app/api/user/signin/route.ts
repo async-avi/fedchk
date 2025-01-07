@@ -3,12 +3,14 @@ import { prisma } from "../../../../../prisma";
 import bcrypt from "bcrypt";
 import errorHandler from "@/handlers/errorHandler";
 import asyncHandler from "@/handlers/asyncHandler";
+import { cookies } from "next/headers";
 interface SignInBody {
   email: string;
   password: string;
 }
 
 export async function POST(req: NextRequest) {
+  const cookie = await cookies();
   try {
     const { email, password }: SignInBody = await req.json();
     const user = await prisma.user.findFirst({
@@ -18,6 +20,7 @@ export async function POST(req: NextRequest) {
     });
     let checkPass = await bcrypt.compare(`${password}`, `${user?.password}`);
     if (user && checkPass) {
+      cookie.set("user", `${user.id}`);
       return NextResponse.json(asyncHandler(200, user.id));
     } else if (user && !checkPass) {
       return NextResponse.json(errorHandler(401, "Invalid Password"));

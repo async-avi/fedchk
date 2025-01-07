@@ -3,6 +3,7 @@ import { prisma } from "../../../../../prisma";
 import bcrypt from "bcrypt";
 import asyncHandler from "@/handlers/asyncHandler";
 import errorHandler from "@/handlers/errorHandler";
+import { cookies } from "next/headers";
 
 interface SignUpBody {
   fullName: string;
@@ -11,6 +12,7 @@ interface SignUpBody {
 }
 
 export async function POST(req: NextRequest) {
+  const cookie = await cookies();
   try {
     const { fullName, email, password }: SignUpBody = await req.json();
     const saltRounds = 10;
@@ -22,6 +24,7 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
+    cookie.set("user", `${user.id}`);
     return NextResponse.json(asyncHandler(200, user.id));
   } catch (error: any) {
     console.log(error.message);
