@@ -26,15 +26,24 @@ export async function POST(req: NextRequest, context: any) {
         },
       },
     });
-
-    return NextResponse.json(
-      asyncHandler(
-        200,
-        `Review with ${newReview.id} created ${
-          starsEnabled ? "with stars" : ""
-        } ${imageEnabled ? "with image" : videoEnabled ? "with video" : ""}`
-      )
-    );
+    const url = `${process.env.PUBLIC_URL}/api/review/${newReview.id}`;
+    let updatedReview = await prisma.review.update({
+      where: {
+        id: newReview.id,
+      },
+      data: {
+        url,
+      },
+    });
+    const resp = asyncHandler(200, updatedReview.url);
+    return NextResponse.json({
+      message: `${newReview.id} has been created ${
+        starsEnabled ? "with stars," : ""
+      } ${videoEnabled ? "with video," : ""} ${
+        imageEnabled ? "with image," : ""
+      }`,
+      data: resp,
+    });
   } catch (error: any) {
     console.log(error);
     return NextResponse.json(errorHandler(500, error));
