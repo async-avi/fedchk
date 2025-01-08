@@ -21,7 +21,15 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-    const url = `${process.env.PUBLIC_URL}/review/new/${newChunk.id}?r=${newChunk.replyEnabled}&s=${newChunk.starsEnabled}&i=${newChunk.imageEnabled}&v=${newChunk.videoEnabled}`;
+    const url = `${process.env.PUBLIC_URL}/api/review/new/${newChunk.id}?r=${newChunk.replyEnabled}&s=${newChunk.starsEnabled}&i=${newChunk.imageEnabled}&v=${newChunk.videoEnabled}`;
+    await prisma.chunk.update({
+      where: {
+        id: newChunk.id,
+      },
+      data: {
+        url,
+      },
+    });
     return NextResponse.json(asyncHandler(200, url));
   } catch (error: any) {
     return NextResponse.json(errorHandler(500, error));
