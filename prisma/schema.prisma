@@ -30,8 +30,8 @@ model Review{
 
 model Reply{
   id String @id @db.ObjectId @default(auto()) @map("_id")
-  type String 
-  assetUrl String @default("")
+  username String
+  content String
   review Review @relation(fields: [reviewId], references: [id])
   reviewId String @db.ObjectId
   iat DateTime @default(now())
