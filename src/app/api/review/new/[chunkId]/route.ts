@@ -7,8 +7,7 @@ export async function POST(req: NextRequest, context: any) {
   const { chunkId } = await context.params;
   const searchParams = req.nextUrl.searchParams;
   const starsEnabled = searchParams.get("s") === "true";
-  const videoEnabled = searchParams.get("v") === "true";
-  const imageEnabled = searchParams.get("i") === "true";
+  const mediaEnabled = searchParams.get("m") === "true";
   const body = await req.json();
 
   try {
@@ -39,9 +38,7 @@ export async function POST(req: NextRequest, context: any) {
     return NextResponse.json({
       message: `${newReview.id} has been created ${
         starsEnabled ? "with stars," : ""
-      } ${videoEnabled ? "with video," : ""} ${
-        imageEnabled ? "with image," : ""
-      }`,
+      } ${mediaEnabled ? "with media" : ""}`,
       data: resp,
     });
   } catch (error: any) {

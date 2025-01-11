@@ -5,15 +5,14 @@ import { prisma } from "../../../../../prisma";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, replyEnabled, starsEnabled, imageEnabled, videoEnabled } = body;
+  const { name, replyEnabled, starsEnabled, mediaEnabled } = body;
   try {
     const newChunk = await prisma.chunk.create({
       data: {
         name,
         replyEnabled,
         starsEnabled,
-        imageEnabled,
-        videoEnabled,
+        mediaEnabled,
         user: {
           connect: {
             id: "67796d319068a5ee69d8b3a6",
@@ -21,7 +20,7 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-    const url = `${process.env.PUBLIC_URL}/api/review/new/${newChunk.id}?r=${newChunk.replyEnabled}&s=${newChunk.starsEnabled}&i=${newChunk.imageEnabled}&v=${newChunk.videoEnabled}`;
+    const url = `${process.env.PUBLIC_URL}/api/review/new/${newChunk.id}?r=${newChunk.replyEnabled}&s=${newChunk.starsEnabled}&m=${newChunk.mediaEnabled}`;
     await prisma.chunk.update({
       where: {
         id: newChunk.id,
