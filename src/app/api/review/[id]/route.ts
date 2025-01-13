@@ -1,6 +1,6 @@
 import errorHandler from "@/handlers/errorHandler";
 import { prisma } from "../../../../../prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import asyncHandler from "@/handlers/asyncHandler";
 
 export async function GET(req: Request, context: any) {
@@ -41,5 +41,24 @@ export async function DELETE(req: Request, context: any) {
     );
   } catch (error) {
     return NextResponse.json(errorHandler(500, error));
+  }
+}
+
+export async function PATCH(req: NextRequest, context: any) {
+  try {
+    const { id } = await context.params;
+    await prisma.review.update({
+      where: {
+        id,
+      },
+      data: {
+        likes: {
+          increment: 1,
+        },
+      },
+    });
+    return NextResponse.json(asyncHandler(200, `Liked ${id}`));
+  } catch (error) {
+    return NextResponse.json(error);
   }
 }

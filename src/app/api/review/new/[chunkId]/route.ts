@@ -6,12 +6,13 @@ import asyncHandler from "@/handlers/asyncHandler";
 export async function POST(req: NextRequest, context: any) {
   const { chunkId } = await context.params;
   const searchParams = req.nextUrl.searchParams;
-  const starsEnabled = searchParams.get("s") === "true";
-  const mediaEnabled = searchParams.get("m") === "true";
+  const replyEnabled = searchParams.get("r");
+  const renderForm = searchParams.get("f");
   const body = await req.json();
-
+  const { username, content } = body;
+  const stars = renderForm == "3" || renderForm == "4" ? body.stars : 0;
+  const assetUrl = renderForm == "2" || renderForm == "4" ? body.assetUrl : "";
   try {
-    const { username, content, stars, assetUrl } = body;
     const newReview = await prisma.review.create({
       data: {
         username,
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest, context: any) {
         },
       },
     });
-    const url = `${process.env.PUBLIC_URL}/api/review/${newReview.id}`;
+    const url = `${process.env.PUBLIC_URL}/api/review/${newReview.id}?r=${replyEnabled}`;
     let updatedReview = await prisma.review.update({
       where: {
         id: newReview.id,
@@ -34,13 +35,7 @@ export async function POST(req: NextRequest, context: any) {
         url,
       },
     });
-    const resp = asyncHandler(200, updatedReview.url);
-    return NextResponse.json({
-      message: `${newReview.id} has been created ${
-        starsEnabled ? "with stars," : ""
-      } ${mediaEnabled ? "with media" : ""}`,
-      data: resp,
-    });
+    return NextResponse.json(asyncHandler(200, updatedReview.url));
   } catch (error: any) {
     console.log(error);
     return NextResponse.json(errorHandler(500, error));
