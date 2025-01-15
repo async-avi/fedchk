@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import asyncHandler from "@/handlers/asyncHandler";
 import errorHandler from "@/handlers/errorHandler";
 import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+import sendMail from "@/handlers/sendEmail";
 
 interface SignUpBody {
   fullName: string;
@@ -24,8 +26,14 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
-    cookie.set("user", `${user.id}`);
-    return NextResponse.json(asyncHandler(200, user.id));
+    let token = {
+      id: user.id,
+    };
+    let assigned = jwt.sign(token, `${process.env.JWT_SECRET}`, {
+      expiresIn: "10m",
+    });
+    await sendMail(assigned, user.email);
+    return NextResponse.json(asyncHandler(200, assigned));
   } catch (error: any) {
     console.log(error.message);
     return NextResponse.json(errorHandler(500, error));
