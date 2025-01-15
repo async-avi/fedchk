@@ -1,27 +1,24 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import asyncHandler from "./handlers/asyncHandler";
+import jwtDecoder from "./handlers/jwtDecoder";
 
-export function middleware(request: NextRequest) {
-  const cookie = request.cookies.get("token");
-  const isVerified = cookie?.value;
-  //frontend
-  if (request.nextUrl.pathname.startsWith("/dashboard/:path*")) {
-    if (!cookie) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/signup";
-      return NextResponse.rewrite(url);
-    }
+export function middleware(req: NextRequest) {
+  let cookie = req.cookies.get("token");
+  let value: any = cookie?.value;
+  if (
+    req.nextUrl.pathname.startsWith("/user") ||
+    (req.nextUrl.pathname == "/" && cookie)
+  ) {
+    let url = req.nextUrl.clone();
+    url.pathname = `/dashboard/${value}`;
+    return NextResponse.redirect(url);
   }
 
-  //backend
-  if (request.nextUrl.pathname.startsWith("/api/chunks")) {
-    if (!cookie) {
-      return NextResponse.json(asyncHandler(403, "Unauthorized"));
-    } else {
-      return NextResponse.next();
-    }
+  if (req.nextUrl.pathname.startsWith("/dashboard") && !cookie) {
+    let url = req.nextUrl.clone();
+    url.pathname = `/`;
+    return NextResponse.redirect(url);
   }
 }
 
